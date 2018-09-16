@@ -1,0 +1,22 @@
+<?php
+		
+			
+			$link = mysqli_connect("localhost", "root", "", "demo2300");
+			if($link)
+			{
+				$headernames
+				$sql = "SHOW COLUMNS FROM INGREDIENTS";  
+					$result = mysql_query($sql);     
+					while($record = mysql_fetch_array($result)){  
+					 $fields[] = $record['0'];  
+					}
+					foreach ($fields as $value){  
+					   $headernames = $headernames . "," . $value;
+					   }
+					   
+					   echo $headernames;
+
+			}
+			
+
+?>

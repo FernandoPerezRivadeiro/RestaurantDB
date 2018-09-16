@@ -1,0 +1,269 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="Vstyles.css">
+	<script>
+		var rowcount = 0;
+		var columncount = 0;
+		var tableName = "Lalala";
+		var headernames ="";
+		var tableData ="";
+		var phpArray = "";
+		$("document").ready(function() {
+					
+			$("button#getTableButton").click(function() {
+				$("#Content").html("");
+				$("#headersofTable").html("");
+				$("input").css("display", "inline");
+				$("input").css("opacity", "100");
+				tableName = ($("#tableSelection option:selected").val());
+				$("div#TableName").html(tableName);
+				$.post( "getTableRow.php", {table: tableName,}, function( data ) {
+					rowcount = data;
+				
+					$.post( "getHeaderNames.php", {table: tableName,}, function( data ) {
+						headernames = data.split(',');
+													
+				
+				
+						columncount = headernames.length;
+						i = columncount+1;
+						
+						
+						
+								$("#headersofTable").append("<tr>");
+									for(k = 1; k<i; k++)
+									{
+										$("#headersofTable").append("<th>" + headernames[k-1] + "</th>");
+									}
+								
+								$("#headersofTable").append("</tr>");
+						
+
+						
+						while (i < 7)
+						{
+							columntohide = "th#h"+i;
+							 $(columntohide).css("display", "none");
+							i++;
+
+						}
+						for(i = columncount+1; i < 7; i++)
+						{
+							$("#input" + i).css("display", "none");
+							$("#input" + i).css("opacity", "0");
+						}
+					});
+
+					$.post( "getTableContent.php", {table: tableName,}, function( data ) {
+							tableData = data.split('^');
+							z = (rowcount);
+							z++;
+							for(i = 1; i<z; i++)
+							{
+								var entry = tableData[i-1].split(',');
+								$("#Content").append("<tr>");
+									for(j = 1; j<(columncount +1); j++)
+									{
+										$("#Content").append("<td id=\"r" + i + "c" +  j +  "\">" + entry[j-1] + "</td>");
+									}
+								
+								$("#Content").append("</tr>");
+							}
+							
+					});
+				});
+			
+			});
+			
+			$("button#Draw").click(function() {
+							var addData ="";
+							
+							for(v=0; v<7; v++)
+							{
+								if(v<columncount)
+								{
+									y = v+1;
+									z = $("#input"+y).val();
+									addData += z +",";
+								}
+								else
+								{
+								addData += ", ";
+								}
+							}
+							addData = addData.split(",");
+							
+							
+							$.post( "insertData.php", {table: tableName, cols: columncount, val1: addData[0], val2: addData[1], val3: addData[2], val4: addData[3],val5: addData[4],val6: addData[5],}, function( data ) {
+							
+							});
+							$("button#getTableButton").click();
+			});	
+
+			
+			
+			
+		});
+    </script>
+	<style>
+/*parallax 1*/
+	body {
+    /* The image used */
+  	background-image: url('img/background2.jpg');
+    background-color: #0d0000;
+
+    /* Set a specific height */
+    height: 75%; 
+
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+	}
+
+	#selectdiv{
+		padding-left: 35px;
+		padding-right: 35px;
+		padding-top: 30px;
+		padding-bottom: 30px;
+		
+		text-align: center;
+		
+		background-color: white;
+		opacity: 0.85;
+	}
+	
+	#selectdiv2{
+		padding-left: 35px;
+		padding-right: 35px;
+		padding-top: 30px;
+		padding-bottom: 30px;
+		
+		margin-top: 5%;
+		
+		text-align: center;
+		
+		background-color: white;
+		opacity: 0.85;
+	}
+	
+	#selectdiv3{
+		margin-top: 10%;
+	}
+	
+	table{
+		border-collapse: collapse;
+		width: 100%;
+		border-style: hidden;
+	}
+	
+	th, td {
+		padding: 8px;
+		text-align: left;
+		border-bottom: 1px solid #ddd;
+		border-left-style: hidden;
+		border-right-style: hidden;
+	}
+	tr:hover {background-color: #6f6c93}
+	
+	#tableName{
+		font-family: myFirstFont; 
+		font-size:2.3em;
+	}
+	
+	@font-face{
+		font-family: myFirstFont;
+		src: url(img/BebasNeue.otf);
+	}
+	
+	.title {
+		font-family: myFirstfont;
+		font-size: 6.0em;
+		color: #f8fff7;
+		
+		padding-top: 15%;
+		padding-left: 1%;
+	}
+	
+	#newEntry {
+		font-family: myFirstFont;
+		color: #676767;
+		font-size:1.3em;
+	}
+	
+</style>
+	
+    
+</head>
+<body>
+	<!--Title-->
+	<div class="title">
+		<p>RESTAURANT DATABASE</p>
+	</div>
+	
+    <div id="selectdiv">
+    <br />
+	<select id= "tableSelection">
+	  <option value="CONTAINS">FOOD CONTAINS</option>
+	  <option value="CUSTOMER">CUSTOMER</option>
+	  <option value="FOOD">FOOD</option>
+	  <option value="INGREDIENTS">INGREDIENTS</option>
+	  <option value="ORDERED">ORDERED</option>
+	  <option value="ORDERS">ORDERS</option>
+	  <option value="PURCHASE">PURCHASE</option>
+	  <option value="RESERVATION">RESERVATION</option>
+	  <option value="STAFF">STAFF</option>
+	  <option value="SUPPLIERS">SUPPLIERS</option>
+	  <option value="suppliers_supplies">SUPPLIER SUPPLIES</option>
+	  <option value="TABLES">RESTAURANT TABLES</option>
+	</select>
+	
+    <button id="getTableButton">Get Table</button>
+	<br><br><br>
+	<div id = "TableName">Table Name</div>
+	<br>
+	<div id="tabledata">
+	</div>
+
+
+	<table id="headersofTable">
+		<tr>
+			<th id="h1">a</th>
+			<th id="h2">b</th>
+			<th id="h3">c</th>
+			<th id="h4">d</th>
+			<th id="h5">e</th>
+			<th id="h6">f</th>
+		</tr>
+		
+	</table>
+	<table id="Content">
+		
+	</table>
+
+	
+		<BR>
+		<BR>
+	</div>
+	<div id="selectdiv2">
+		<div id = "newEntry">New entry in </div>
+		<div id = "TableName">Table Name</div>
+		<br />
+		<input type="text" id = "input1" value=""></input>
+		<input type="text" id = "input2" value=""></input>
+		<input type="text" id = "input3" value=""></input>
+		<input type="text" id = "input4" value=""></input>
+		<input type="text" id = "input5" value=""></input>
+		<input type="text" id = "input6" value=""></input>
+		<br><br>
+		<button class="waitForAnimation" id="Draw">Add Entry</button>
+	</div>
+	
+	<div id="selectdiv3">
+		
+	</div>
+</body>
+</html>
